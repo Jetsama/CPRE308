@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g
+CFLAGS = -Wall -Wextra -g -lkernel32
 TARGET = Project1
 SRC = main.c pathcommands.c proccesses.c
 OBJ = $(SRC:.c=.o)

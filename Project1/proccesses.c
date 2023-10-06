@@ -8,6 +8,12 @@ void cmd_pid(){
     pid_t pid = getpid();
     printf("PID: %d\n", pid);
 }
+void cmd_ppid(){
+
+    //pid_t ppid = getppid();
+    //printf("Parent PID: %d\n", ppid);
+}
+
 command pid_command ={
     "pid",
      0, // dont know if needed really?
@@ -16,5 +22,5 @@ command pid_command ={
 command ppid_command={
     "ppid",
      0, // dont know if needed really?
-    cmd_pid
+    cmd_ppid
 };
