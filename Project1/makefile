@@ -1,16 +1,35 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -g
+TARGET = Project1
+SRC = main.c pathcommands.c proccesses.c
+OBJ = $(SRC:.c=.o)
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 
-all: main path proccesses
 
-main: main.o path proccesses
-path: path.o
-proccesses: proccesses.o
 
-main.o: main.c commands/commands.h
-	gcc -c -lpthread main.c
+#Project1: main.o pathcommands.o 
+#	gcc -o Project1 main.o pathcommands.o 
+#proccesses: proccesses.o
 
-path.o: path.c
-	gcc -c -lpthread path.c
+#main.o: main.c commands.h
+#	gcc -c -lpthread main.c
 
-proccesses.o: proccesses.c
-	gcc -c -lpthread proccesses.c
+#pathcommands.o: pathcommands.c commands.h
+#	gcc -c -lpthread pathcommands.c
+
+#proccesses.o: proccesses.c commands.h
+#	gcc -c -lpthread proccesses.c
+
+
+clean:
+	rm -f $(TARGET) $(OBJ)
+
+clean_build: clean all
