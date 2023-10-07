@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "commands.h"
 #include "createlog.h"
-#include <time.h>
+#include <sys/time.h>
 #ifdef _WIN32
     // Windows-specific headers
     #include <process.h>
@@ -74,8 +75,25 @@ int main(int argc, char *argv[]) {
     char buffer[100];
     char buffer_string[100];
     int command_flag = 0;
+    fd_set read_fds;
+    struct timeval timeout;
+    int stdin_fd = fileno(stdin);
 
     while(exit_shell == FALSE){
+
+        FD_ZERO(&read_fds);
+        FD_SET(stdin_fd, &read_fds);
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 0;
+
+        int ready = select(stdin_fd + 1, &read_fds, NULL, NULL, &timeout);
+        if (ready == -1) {
+            perror("select");
+            exit(EXIT_FAILURE);
+        } else if (ready > 0 && FD_ISSET(stdin_fd, &read_fds)) {
+
+
+        
         command_flag = 0; //command has not been processed
 
 
@@ -130,7 +148,7 @@ int main(int argc, char *argv[]) {
             perror("fork failed");
         }
        
-    else if (pid == 0) { // child
+        else if (pid == 0) { // child
         if (run_background) {
             // Detach child from terminal
             //setsid();
@@ -162,9 +180,9 @@ int main(int argc, char *argv[]) {
             }
             exit(0); // Exit with success status
         }
-}
+    }
 
-    else {
+        else {
         if (run_background) {
             // Parent process for background command
             // Create a background process entry with the process ID and command
@@ -175,8 +193,8 @@ int main(int argc, char *argv[]) {
             waitpid(pid, NULL, 0); // Wait for the foreground process to complete
         }
     }
-        
-    }
+        }
+    } //end while
 
     //printf("exit program");
     return 0;
