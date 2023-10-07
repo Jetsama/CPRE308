@@ -43,19 +43,20 @@ int getSize(char **args) {
 }
 
 exit_shell = FALSE;
-
+BackgroundProcess *processes = NULL;
 int main(int argc, char *argv[]) {
 
     path_start(); //get path of exe
     DirectoryUp();
-    BackgroundProcess *processes = NULL;
 
-    command commands[5] = {
+
+    command commands[6] = {
     cd_command,
     exit_command,
     pid_command,
     ppid_command,
-    pwd_command
+    pwd_command,
+    jobs_command
     };
 
 
@@ -125,43 +126,45 @@ int main(int argc, char *argv[]) {
         char ** arguments = splitargs(buffer_string);   //set args
         int count = getSize(arguments);
 
-        for( int i=0; i< 5; i++){
-            printf("Compare %s and %s\n",commands[i].command,cmd);
+        for( int i=0; i< 6; i++){
+            //printf("Compare %s and %s\n",commands[i].command,cmd);
             if(strcmp(commands[i].command,cmd) == 0){
                 //printf("MATCH\n"); //it is registered command        
                 //call command function                
 
                 commands[i].function(count,arguments);
                 command_flag = 1;
+                printf("%s",prompt); 
+                fflush(stdout);
                 break; //no need to check other commands
             }
             
         }
         if(command_flag) continue;
-        printf("run external command\n\n");
+        printf("Run external command\n\n");
         //works as an else statement where if not in valid commands then run with execvp
         //char* command = "ls";
         //char* argument_list[] = {"ls", "-l", NULL};
 
         int run_background = count >1 && strcmp(arguments[count-1],"&") == 0;
-        printf("run in background: %d\n",run_background);
+        //printf("run in background: %d\n",run_background);
         if(run_background){
             
         }
 
 
 
-char cmd_copy[100]; 
-strcpy(cmd_copy, cmd);
+            char cmd_copy[100]; 
+            strcpy(cmd_copy, cmd);
 
-char **arguments_copy = malloc((count + 1) * sizeof(char*)); // Allocate memory for arguments_copy
+            char **arguments_copy = malloc((count + 1) * sizeof(char*)); // Allocate memory for arguments_copy
 
-for (int i = 0; i < count - 1; ++i) {
-    arguments_copy[i] = malloc(strlen(arguments[i]) + 1);
-    strcpy(arguments_copy[i], arguments[i]);
-}
+            for (int i = 0; i < count - 1; ++i) {
+                arguments_copy[i] = malloc(strlen(arguments[i]) + 1);
+                strcpy(arguments_copy[i], arguments[i]);
+            }
 
-arguments_copy[count - 1] = NULL; 
+            arguments_copy[count - 1] = NULL; 
         int logFile = 0;
         pid_t pid = fork();
         if(pid ==-1){

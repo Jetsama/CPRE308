@@ -25,10 +25,22 @@ command ppid_command={
     cmd_ppid
 };
 
-void jobs_command(){
 
+void jobs_function(){
+
+    BackgroundProcess* current = processes;
+
+    printf("Background Processes:\n");
+    while (current != NULL) {
+        printf("[%d] %s\n", current->pid, current->command);
+        current = current->next;
+    }
 }
-
+command jobs_command={
+    "jobs",
+     0, // dont know if needed really?
+    jobs_function
+};
 
 
 BackgroundProcess* addBackgroundProcess(BackgroundProcess** processes, pid_t pid, char* cmd) {

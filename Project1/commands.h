@@ -26,6 +26,8 @@ typedef struct BackgroundProcess {
     int completed; // Flag to indicate if the process has completed
     struct BackgroundProcess* next;
 } BackgroundProcess;
+extern BackgroundProcess *processes;
+
 int checkBackgroundProcessStatus(BackgroundProcess** processes);
 BackgroundProcess* addBackgroundProcess(BackgroundProcess** processes, pid_t pid, char* cmd);
 
@@ -42,5 +44,5 @@ extern command exit_command;
 extern command pid_command;
 extern command ppid_command;
 extern command pwd_command;
-
+extern command jobs_command;
 #endif
