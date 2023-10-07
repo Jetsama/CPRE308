@@ -2,7 +2,7 @@
 #include "commands.h"
 #include <stdio.h>
 #include <unistd.h>
-
+#include <sys/wait.h>
 void cmd_pid(){
 
     pid_t pid = getpid();
@@ -31,15 +31,70 @@ void jobs_command(){
 
 
 
-BackgroundProcess* addBackgroundProcess(BackgroundProcess *list, pid_t pid, const char *command) {
-    BackgroundProcess *newProcess = malloc(sizeof(BackgroundProcess));
+BackgroundProcess* addBackgroundProcess(BackgroundProcess** processes, pid_t pid, char* cmd) {
+    BackgroundProcess* newProcess = malloc(sizeof(BackgroundProcess));
     if (newProcess == NULL) {
-        perror("Memory allocation error");
-       return NULL;
+        perror("malloc failed");
+        exit(0);
     }
     newProcess->pid = pid;
-    strncpy(newProcess->command, command, sizeof(newProcess->command) - 1);
-    newProcess->command[sizeof(newProcess->command) - 1] = '\0';
-    newProcess->next = list;
-    return newProcess;
+    newProcess->command = strdup(cmd);
+    newProcess->completed = FALSE;
+    newProcess->next = NULL;
+
+    if (*processes == NULL) {
+        *processes = newProcess; // Update the head pointer if the list is empty
+    } else {
+        BackgroundProcess* current = *processes;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newProcess;
+    }
+    return *processes; // Return the updated list (optional)
+}
+
+void freeBackgroundProcesses(BackgroundProcess* processes) {
+    while (processes != NULL) {
+        BackgroundProcess* temp = processes;
+        processes = processes->next;
+        free(temp->command);
+        free(temp);
+    }
+}
+
+int checkBackgroundProcessStatus(BackgroundProcess** processes) {
+    //printf("Processes pointer: %p\n", (void *)processes);
+    BackgroundProcess* current = *processes;
+    BackgroundProcess* prev = NULL;
+    //
+    while (current != NULL) {
+        //printf("Checking process [%d] %s \n", current->pid, current->command);
+        int status;
+        pid_t result = waitpid(current->pid, &status, WNOHANG);
+        if (result > 0) {
+            // Process has completed, update the completed flag
+            current->completed = TRUE;
+            printf("\n[%d] %s finished with status: %d\n", current->pid, current->command, WEXITSTATUS(status));
+
+            // Remove the completed process from the list
+            if (prev == NULL) {
+                // If it's the first element, update the head of the list
+                *processes = current->next;
+                free(current->command);
+                free(current);
+                current = *processes;  // Move to the next process in the list
+            } else {
+                prev->next = current->next;
+                free(current->command);
+                free(current);
+                current = prev->next;  // Move to the next process in the list
+            }
+            return 1; // it ended process
+        } else {
+            // Move to the next process in the list
+            prev = current;
+            current = current->next;
+        }
+    }
 }

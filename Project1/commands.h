@@ -21,12 +21,13 @@ typedef struct{
 
 
 typedef struct BackgroundProcess {
-    pid_t pid;  
-    char command[256]; 
-   // char logFile[256]; 
-    struct BackgroundProcess *next;  // Pointer to the next process
+    pid_t pid;
+    char* command;
+    int completed; // Flag to indicate if the process has completed
+    struct BackgroundProcess* next;
 } BackgroundProcess;
-
+int checkBackgroundProcessStatus(BackgroundProcess** processes);
+BackgroundProcess* addBackgroundProcess(BackgroundProcess** processes, pid_t pid, char* cmd);
 
 void DirectoryUp();
 void path_start();

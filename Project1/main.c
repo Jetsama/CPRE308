@@ -78,9 +78,17 @@ int main(int argc, char *argv[]) {
     fd_set read_fds;
     struct timeval timeout;
     int stdin_fd = fileno(stdin);
-
+    printf("%s",prompt); //add prompt "308sh> "
+ fflush(stdout);
     while(exit_shell == FALSE){
 
+        if(processes){
+
+        }
+        if(checkBackgroundProcessStatus(&processes)){ 
+            printf("%s",prompt);
+            fflush(stdout);
+        };
         FD_ZERO(&read_fds);
         FD_SET(stdin_fd, &read_fds);
         timeout.tv_sec = 0;
@@ -97,7 +105,7 @@ int main(int argc, char *argv[]) {
         command_flag = 0; //command has not been processed
 
 
-        printf("\n%s",prompt); //add prompt "308sh> "
+        
         fgets(buffer, sizeof(buffer), stdin);
 
             //REMOVING \n
@@ -136,13 +144,25 @@ int main(int argc, char *argv[]) {
         //char* argument_list[] = {"ls", "-l", NULL};
 
         int run_background = count >1 && strcmp(arguments[count-1],"&") == 0;
-        
+        printf("run in background: %d\n",run_background);
         if(run_background){
             
         }
 
+
+
+char cmd_copy[100]; 
+strcpy(cmd_copy, cmd);
+
+char **arguments_copy = malloc((count + 1) * sizeof(char*)); // Allocate memory for arguments_copy
+
+for (int i = 0; i < count - 1; ++i) {
+    arguments_copy[i] = malloc(strlen(arguments[i]) + 1);
+    strcpy(arguments_copy[i], arguments[i]);
+}
+
+arguments_copy[count - 1] = NULL; 
         int logFile = 0;
-        int pipefd[2];
         pid_t pid = fork();
         if(pid ==-1){
             perror("fork failed");
@@ -150,30 +170,15 @@ int main(int argc, char *argv[]) {
        
         else if (pid == 0) { // child
         if (run_background) {
-            // Detach child from terminal
-            //setsid();
-
-            arguments[count - 1] = NULL; // Remove the '&' from arguments
-             //printf("create log\n");
-            char *logFilename = createLog(); // Get log filename
-            //printf("logFilename log: %s\n",logFilename);
-            //printf("logFilename log\n");
-            // Redirect stdout to the log file
-            logFile = openLog(logFilename);
-             //printf("logFilename log: %s\n",logFilename);
-            // Execute the command
-            if (execvp(cmd, arguments) == -1) {
-                perror("execvp failed");
-                closeLog(logFile);
-                exit(0); // Exit with failure status
-            }
-
-            // Close the log file after execution
-            //printf("fail on close? log: %s\n",logFilename);
-            //closeLog(logFile);
-            exit(0); // Exit with success status
+        char *logFilename = createLog(); // Get log filename
+        logFile = openLog(logFilename);
+        if (execvp(cmd_copy, arguments_copy) == -1) {
+            perror("execvp failed");
+            closeLog(logFile);
+            exit(0); // Exit with failure status
+        }
+        exit(0); // Exit with success status
         } else {
-            // Execute the command without redirecting stdout
             if (execvp(cmd, arguments) == -1) {
                 perror("execvp failed");
                 exit(0); // Exit with failure status
@@ -183,16 +188,19 @@ int main(int argc, char *argv[]) {
     }
 
         else {
-        if (run_background) {
-            // Parent process for background command
-            // Create a background process entry with the process ID and command
-            processes = addBackgroundProcess(processes, pid, cmd);
-            printf("[%ld] %s\n", pid, cmd);
-        } else {
+            if (run_background) {
+                // Parent process for background command
+                // Create a background process entry with the process ID and command
+                processes = addBackgroundProcess(&processes, pid, cmd);
+                printf("%ld processes updated", processes->pid);
+                printf("[%ld] %s\n", pid, cmd);
+            } else {
             // Parent process for foreground command
             waitpid(pid, NULL, 0); // Wait for the foreground process to complete
         }
-    }
+        }
+        printf("%s",prompt); //add prompt "308sh> 
+        fflush(stdout);
         }
     } //end while
 
