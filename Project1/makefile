@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = -Wall -Wextra -g -lkernel32
+CFLAGS = -Wall -Wextra -g -lm
 TARGET = Project1
-SRC = main.c pathcommands.c proccesses.c
+SRC = main.c pathcommands.c proccesses.c createlog.c
 OBJ = $(SRC:.c=.o)
 
 all: $(TARGET)

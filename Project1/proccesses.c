@@ -24,3 +24,22 @@ command ppid_command={
      0, // dont know if needed really?
     cmd_ppid
 };
+
+void jobs_command(){
+
+}
+
+
+
+BackgroundProcess* addBackgroundProcess(BackgroundProcess *list, pid_t pid, const char *command) {
+    BackgroundProcess *newProcess = malloc(sizeof(BackgroundProcess));
+    if (newProcess == NULL) {
+        perror("Memory allocation error");
+       return NULL;
+    }
+    newProcess->pid = pid;
+    strncpy(newProcess->command, command, sizeof(newProcess->command) - 1);
+    newProcess->command[sizeof(newProcess->command) - 1] = '\0';
+    newProcess->next = list;
+    return newProcess;
+}

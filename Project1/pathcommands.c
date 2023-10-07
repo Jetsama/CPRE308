@@ -1,5 +1,6 @@
 #include "commands.h"
 #include <stdio.h>
+#include <limits.h>
 
 #ifdef _WIN32
     // Windows-specific headers
@@ -11,9 +12,9 @@
 
 
 void DirectoryUp() {
-    char *lastBackslash = strrchr(path, '\\');
-    if (lastBackslash != NULL) {
-        *lastBackslash = '\0';
+    char *lastSlash = strrchr(path, '/');
+    if (lastSlash != NULL) {
+        *lastSlash = '\0';
     }
 }
 
@@ -25,18 +26,18 @@ void path_start(){
         // Windows code
         DWORD length = GetModuleFileName(NULL, path, sizeof(path));
         if (length != 0) {
-            printf("Path of the executable: %s\n", path);
+           printf("Path: %s\n", path);
         } else {
-            perror("Error getting executable path");
+           perror("Error getting path");
         }
     #else
         // Unix code
         ssize_t len = readlink("/proc/self/exe", path, sizeof(path) - 1);
         if (len != -1) {
             path[len] = '\0';
-            printf("Path of the executable: %s\n", path);
+            printf("Path: %s\n", path);
         } else {
-            perror("Error getting executable path");
+            perror("Error getting path");
         }
     #endif
     
@@ -63,7 +64,7 @@ void path_cd(int argc, char *argv[]){
 }
 
 void path_pwd(){
-    char cwd[MAX_PATH];
+    char cwd[PATH_MAX];
    if (getcwd(cwd, sizeof(cwd)) != NULL) {
        printf("Current working dir: %s\n", cwd);
    } else {

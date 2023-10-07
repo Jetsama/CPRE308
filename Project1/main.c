@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include "commands.h"
+#include "createlog.h"
+#include <time.h>
 #ifdef _WIN32
     // Windows-specific headers
     #include <process.h>
@@ -44,6 +46,8 @@ exit_shell = FALSE;
 int main(int argc, char *argv[]) {
 
     path_start(); //get path of exe
+    DirectoryUp();
+    BackgroundProcess *processes = NULL;
 
     command commands[5] = {
     cd_command,
@@ -74,10 +78,9 @@ int main(int argc, char *argv[]) {
     while(exit_shell == FALSE){
         command_flag = 0; //command has not been processed
 
-        if(strcmp(prompt,"")){
 
-            printf(prompt); //add prompt "308sh> "
-            fgets(buffer, sizeof(buffer), stdin);
+        printf("\n%s",prompt); //add prompt "308sh> "
+        fgets(buffer, sizeof(buffer), stdin);
 
             //REMOVING \n
             size_t length = strlen(buffer);
@@ -89,11 +92,10 @@ int main(int argc, char *argv[]) {
             char delim[] = " ";
             strcpy(buffer_string,buffer);
             cmd  = strtok(buffer, delim); //get command from string!
-        }
 
        
-        printf("command\n");
-        printf(cmd);printf("\n");
+        //printf("command\n");
+        //printf(cmd);printf("\n");
         char ** arguments = splitargs(buffer_string);   //set args
         int count = getSize(arguments);
 
@@ -110,23 +112,69 @@ int main(int argc, char *argv[]) {
             
         }
         if(command_flag) continue;
-        printf("run external command");
+        printf("run external command\n\n");
         //works as an else statement where if not in valid commands then run with execvp
         //char* command = "ls";
         //char* argument_list[] = {"ls", "-l", NULL};
+
+        int run_background = count >1 && strcmp(arguments[count-1],"&") == 0;
+        
+        if(run_background){
+            
+        }
+
+        int logFile = 0;
+        int pipefd[2];
         pid_t pid = fork();
         if(pid ==-1){
             perror("fork failed");
         }
-        else if (pid == 0) {//child
+       
+    else if (pid == 0) { // child
+        if (run_background) {
+            // Detach child from terminal
+            //setsid();
+
+            arguments[count - 1] = NULL; // Remove the '&' from arguments
+             //printf("create log\n");
+            char *logFilename = createLog(); // Get log filename
+            //printf("logFilename log: %s\n",logFilename);
+            //printf("logFilename log\n");
+            // Redirect stdout to the log file
+            logFile = openLog(logFilename);
+             //printf("logFilename log: %s\n",logFilename);
+            // Execute the command
             if (execvp(cmd, arguments) == -1) {
-                 perror("execvp failed");
+                perror("execvp failed");
+                closeLog(logFile);
+                exit(0); // Exit with failure status
             }
-            exit_shell = TRUE;
+
+            // Close the log file after execution
+            //printf("fail on close? log: %s\n",logFilename);
+            //closeLog(logFile);
+            exit(0); // Exit with success status
         } else {
-            waitpid(pid, NULL, 0); //add & check
-            printf("external command finished");
+            // Execute the command without redirecting stdout
+            if (execvp(cmd, arguments) == -1) {
+                perror("execvp failed");
+                exit(0); // Exit with failure status
+            }
+            exit(0); // Exit with success status
         }
+}
+
+    else {
+        if (run_background) {
+            // Parent process for background command
+            // Create a background process entry with the process ID and command
+            processes = addBackgroundProcess(processes, pid, cmd);
+            printf("[%ld] %s\n", pid, cmd);
+        } else {
+            // Parent process for foreground command
+            waitpid(pid, NULL, 0); // Wait for the foreground process to complete
+        }
+    }
         
     }
 
