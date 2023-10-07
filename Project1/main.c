@@ -65,9 +65,9 @@ int main(int argc, char *argv[]) {
     cmd = "";
     prompt = "308sh> ";
     for(int i= 0; i< argc; i++){
-        if(argv[i] == "-p"){
-            i++; //next arg is prompt
-            prompt = argv[i];
+        if(strcmp(argv[i], "-p") == 0 && i + 1 < argc){
+           // printf("ag1 %s and ag2%s \n", argv[i], argv[i + 1]);
+           prompt = argv[i + 1];
         }
 
     }
