@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
     struct timeval timeout;
     int stdin_fd = fileno(stdin);
     printf("%s",prompt); //add prompt "308sh> "
- fflush(stdout);
+    fflush(stdout);
     while(exit_shell == FALSE){
 
         if(processes){
