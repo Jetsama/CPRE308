@@ -13,6 +13,19 @@
             "options": {
                 "cwd": "${workspaceFolder}/Project2"
             }
+        },
+        {
+            "label": "make lab 6",
+            "type": "shell",
+            "command": "make",
+            "args": ["clean_build"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/Lab6"
+            }
         }
     ]
 }

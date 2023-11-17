@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug",
+            "name": "Project 2 Debug",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/Project2/appserver",
@@ -20,6 +20,26 @@
                 }
             ],
             "preLaunchTask": "make"
+        },
+        {
+            "name": "Lab 6 Debug",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Lab6/Lab6",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/Lab6/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "make lab 6"
         }
     ]
 }
