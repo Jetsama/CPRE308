@@ -165,24 +165,124 @@ int main() {
 int first_come_first_served(process proc[], int t)
 {
   /* TODO: Implement scheduling algorithm here */
-  return -1;
+
+  int proc_num = 0;
+
+  process cur_proc = proc[proc_num];
+
+  int first_proc = -1;
+  int lowest_start = 1000;
+  
+  do{
+      
+      if(lowest_start > cur_proc.arrivaltime && !cur_proc.finished){
+        first_proc = proc_num;
+        lowest_start = cur_proc.arrivaltime;
+      }
+
+      proc_num++;
+      cur_proc = proc[proc_num];
+  }while(cur_proc.arrivaltime != NULL);
+  if(lowest_start > t) return -1;
+
+  return first_proc;
 }
+
 
 int shortest_remaining_time(process proc[], int t)
 {
   /* TODO: Implement scheduling algorithm here */
-  return -1;
+  int proc_num = 0;
+
+  process cur_proc = proc[proc_num];
+
+  int short_proc = -1;
+  int lowest_remain = 1000;
+  
+  do{
+      
+      if(lowest_remain > cur_proc.remainingtime && !cur_proc.finished && cur_proc.arrivaltime <= t){
+        short_proc = proc_num;
+        lowest_remain = cur_proc.remainingtime;
+      }
+
+      proc_num++;
+      cur_proc = proc[proc_num];
+  }while(cur_proc.arrivaltime != NULL);
+
+
+  return short_proc;
 }
 
+
+int last_proc = 0;
 int round_robin(process proc[], int t)
 {
-  /* TODO: Implement scheduling algorithm here */
-  //HINT: consider using a static variable to keep track of the previously scheduled process
-  return -1;
+  int proc_num = -1;
+  process cur_proc = proc[0];
+
+  int total_proc = 0;
+
+  while(cur_proc.arrivaltime != NULL){
+      total_proc++;
+      cur_proc = proc[total_proc];
+  }
+
+  int count = 0;
+  int last_last_proc = last_proc;
+  do{
+    last_proc++;
+    
+    if(last_proc > total_proc){
+      last_proc = 0;
+    }
+    cur_proc = proc[last_proc];
+    if(count > total_proc){
+      last_proc = last_last_proc;
+      return -1;
+    }
+    count++;
+  }  while(cur_proc.finished||cur_proc.arrivaltime>t);
+
+
+
+  return last_proc;
 }
 
 int round_robin_priority(process proc[], int t)
 {
-  /* TODO: Implement scheduling algorithm here */
-  return -1;
+  int proc_num = 0;
+  process cur_proc = proc[proc_num];
+
+  int total_proc = 0;
+  int priority = -1;
+  while(cur_proc.arrivaltime != NULL){
+      total_proc++;
+      cur_proc = proc[total_proc];
+      if((cur_proc.priority > priority || priority == -1)  && !cur_proc.finished && cur_proc.arrivaltime<=t){
+        priority = cur_proc.priority;
+      }
+  }
+
+
+  int count = 0;
+  int last_last_proc = last_proc;
+
+  do{
+    last_proc++;
+    if(last_proc > total_proc){
+      last_proc = 0;
+    }
+    cur_proc = proc[last_proc];
+    
+    if(count > total_proc){
+      last_proc = last_last_proc;
+      return -1;
+    }
+    count++;
+  }  while(cur_proc.finished || cur_proc.priority != priority||cur_proc.arrivaltime>t);
+  
+
+
+  return last_proc;
 }
