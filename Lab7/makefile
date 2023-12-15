@@ -1,10 +1,16 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g -lm
 TARGET = bytedump
-SRC = bytedump.c
+SRC = bytedump.c 
 OBJ = $(SRC:.c=.o)
 
-all: $(TARGET)
+bsdump: bsdump-template.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+fat12ls: fat12ls-template.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+all: $(TARGET) bsdump fat12ls
 
 $(TARGET): $(OBJ)
 	$(CC) $(CFLAGS) -o $@ $^
@@ -14,6 +20,6 @@ $(TARGET): $(OBJ)
 
 clean:
 	rm -f $(OBJ) $(TARGET)
-	rm -f debug debug2
+	rm -f bsdump fat12ls
 
 clean_build: clean all

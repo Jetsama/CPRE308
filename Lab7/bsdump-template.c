@@ -92,17 +92,51 @@ void decodeBootSector(struct BootSector * pBootS, unsigned char buffer[])
 {
 	
 	// TODO: Pull the name and put it in the struct pBootS (remember to null-terminate)
-    
+	int buffer_counter = 3; //0x00 3 Binary offset of boot loader hex
+	char buffer_char = buffer[buffer_counter];
+	for(int i = 0; i <8; i++){ //0x03 8 Volume Label (ASCII, null padded) ASCII
+
+		pBootS->sName[i] = buffer[buffer_counter];
+		buffer_counter++;
+	}
+	pBootS->sName[8] = '\n';
+
 	// TODO: Read bytes/sector and convert to big endian
-    
-	// TODO: Read sectors/cluster, Reserved sectors and Number of Fats
-    
-	// TODO: Read root entries, logicical sectors and medium descriptor
-    
-	// TODO: Read and covert sectors/fat, sectors/track, and number of heads
-    
-	// TODO: Read hidden sectors
+    pBootS->iBytesSector = endianSwap(buffer[buffer_counter],buffer[buffer_counter +1]); //0x0B 2 Bytes per logical sector decimal
+	buffer_counter +=2;
 	
+
+	// TODO: Read sectors/cluster, Reserved sectors and Number of Fats
+	pBootS->iSectorsCluster = buffer[buffer_counter]; //0x0D 1 Logical sectors per cluster (block) decimal
+	buffer_counter+=1;
+
+	pBootS->iReservedSectors = endianSwap(buffer[buffer_counter],buffer[buffer_counter+1]);//0x0E 2 Number of reserved sectors decimal
+	buffer_counter+=2;
+
+	pBootS->iNumberFATs = buffer[buffer_counter];//0x10 1 Number of FATs (generally 2) decimal
+	buffer_counter+=1;
+
+	// TODO: Read root entries, logicical sectors and medium descriptor
+    pBootS->iRootEntries = endianSwap(buffer[buffer_counter],buffer[buffer_counter +1]); //0x0E 2 Number of reserved sectors decimal
+	buffer_counter+=2;
+	
+	pBootS->iLogicalSectors = endianSwap(buffer[buffer_counter],buffer[buffer_counter +1]);//0x13 2 Number of logical sectors decima
+	buffer_counter+=2;
+	pBootS->xMediumDescriptor = buffer[21]; //0x15 1 Media descriptor hex
+
+	buffer_counter+=1;
+	
+	// TODO: Read and covert sectors/fat, sectors/track, and number of heads
+    pBootS->iSectorsFAT = endianSwap(buffer[buffer_counter],buffer[buffer_counter +1]);//0x1A 2 Number of heads decimal
+	buffer_counter+=2;
+	pBootS->iSectorsTrack = endianSwap(buffer[buffer_counter],buffer[buffer_counter +1]);
+	buffer_counter+=2;
+
+	pBootS->iHeads = endianSwap(buffer[buffer_counter],buffer[buffer_counter +1]);
+	buffer_counter+=2;
+
+	// TODO: Read hidden sectors
+	pBootS->iHiddenSectors = endianSwap(buffer[buffer_counter],buffer[buffer_counter +1]); //0x1C 2 Number of hidden sectors decimal
 }
 
 

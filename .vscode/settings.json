@@ -9,5 +9,6 @@
         "time.h": "c",
         "stdlib.h": "c",
         "request.h": "c"
-    }
+    },
+    "terminal.integrated.minimumContrastRatio": 1
 }
